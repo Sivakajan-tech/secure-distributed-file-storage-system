@@ -1,17 +1,21 @@
 import os
 
+
 def upload_file():
     file_name = input("Enter the file name: ")
     print(f"File '{file_name}' uploaded successfully!")
+
 
 def download_file():
     file_name = input("Enter the file name: ")
     print(f"File '{file_name}' downloaded successfully!")
 
+
 def view_all_files():
     print("List of files:")
     for file_name in os.listdir():
         print(file_name)
+
 
 def main():
     while True:
@@ -33,6 +37,7 @@ def main():
             break
         else:
             print("Invalid choice. Please try again.")
+
 
 if __name__ == "__main__":
     print("Welcome to the Secure Distributed File Storage System!\n")
