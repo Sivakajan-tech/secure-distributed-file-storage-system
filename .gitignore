@@ -23,3 +23,5 @@ ipython_config.py
 venv/
 
 .idea/
+
+.DS_Store
