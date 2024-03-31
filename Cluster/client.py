@@ -14,7 +14,7 @@ def main():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Define the server address and port
-    client_address = ("localhost", 65432)
+    client_address = ("0.0.0.0", 65432)
 
     # Bind the socket to the server address and port
     client_socket.connect(client_address)
@@ -22,14 +22,14 @@ def main():
     # Listen for incoming connections
     print("Server is listening on {}:{}".format(*client_address))
 
-    # # Prompt the client for the file path
-    # file_path = input('Enter the file path: ')
+    # Prompt the client for the file path
+    file_path = input('Enter the file path: ')
 
-    # file_name = file_path.split('/')[-1]
-    client_socket.send("file_name".encode("utf-8"))
+    file_name = file_path.split('/')[-1]
+    client_socket.send(file_name.encode("utf-8"))
 
-    # # Send the file to the client
-    # send_file(client_socket, file_path)
+    # Send the file to the client
+    send_file(client_socket, file_path)
     print("File sent successfully")
 
     # Close the client connection

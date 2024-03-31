@@ -21,16 +21,16 @@ def start_server(server_address):
 
         # Receive the file name
         file_name = client_socket.recv(1024).decode("utf-8")
-        # if file_name:
-        #     file_loc = f'./collection/{file_name}'
-        #     os.makedirs(os.path.dirname(file_loc), exist_ok=True)
+        if file_name:
+            file_loc = f'./collection/{file_name}'
+            os.makedirs(os.path.dirname(file_loc), exist_ok=True)
 
-        #     # Receive the file data and save it
-        #     with open(file_loc, "wb") as file:
-        #         data = client_socket.recv(1024)
-        #         while data:
-        #             file.write(data)
-        #             data = client_socket.recv(1024)
+            # Receive the file data and save it
+            with open(file_loc, "wb") as file:
+                data = client_socket.recv(1024)
+                while data:
+                    file.write(data)
+                    data = client_socket.recv(1024)
 
         print(f"File {file_name} received and saved successfully\n")
         client_socket.close()
