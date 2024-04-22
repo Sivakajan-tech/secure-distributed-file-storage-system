@@ -16,17 +16,20 @@ for i in range(3):  # Inserting 3 different files
 
     # Prepare insert query
     insert_query = session.prepare(
-        "INSERT INTO file_metadata_table (file_id, file_name, file_size, file_type, upload_date) VALUES (?, ?, ?, ?, ?)"
+        "INSERT INTO file_metadata_table (" + 
+        "file_id, file_name, file_size, file_type, upload_date" +
+        ") VALUES (?, ?, ?, ?, ?)"
     )
 
     # Execute insert query
     session.execute(
-        insert_query, 
+        insert_query,
         [file_id, f'test{i+1}', 10 * (i+1), 'pdf', upload_date]
     )
 
 # Query data
-select_query = "SELECT file_id, file_name, file_size, file_type, upload_date FROM file_metadata_table"
+select_query = "SELECT file_id, file_name, file_size, " + 
+"file_type, upload_date FROM file_metadata_table"
 result = session.execute(select_query)
 for row in result:
     file_id = row.file_id
