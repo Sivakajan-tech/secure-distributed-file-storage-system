@@ -14,15 +14,15 @@ def connect_to_cassandra():
 # Function to create indexes on Cassandra table
 def create_indexes(session):
     create_indexes_query = [
-        "CREATE INDEX IF NOT EXISTS file_name_index ON " + 
-        "file_metadata_table (file_name)",
-        "CREATE INDEX IF NOT EXISTS file_size_index ON " + 
-        "file_metadata_table (file_size)",
-        "CREATE INDEX IF NOT EXISTS file_type_index ON" + 
-        " file_metadata_table (file_type)",
-        "CREATE INDEX IF NOT EXISTS upload_date_index ON" + 
-        " file_metadata_table (upload_date)"
-    ]
+    "CREATE INDEX IF NOT EXISTS file_name_index ON "
+    "file_metadata_table (file_name)",
+    "CREATE INDEX IF NOT EXISTS file_size_index ON "
+    "file_metadata_table (file_size)",
+    "CREATE INDEX IF NOT EXISTS file_type_index ON "
+    "file_metadata_table (file_type)",
+    "CREATE INDEX IF NOT EXISTS upload_date_index ON "
+    "file_metadata_table (upload_date)"
+]
     for query in create_indexes_query:
         session.execute(query, timeout=120)
 
@@ -62,8 +62,10 @@ def download_file():
 def view_all_files(session):
     print("\n" + "*"*60 + "\n")
     print("List of files:")
-    select_query = "SELECT file_name, file_size, file_type," 
-    + "upload_date FROM file_metadata_table"
+    select_query = (
+        "SELECT file_name, file_size, file_type," 
+        "upload_date FROM file_metadata_table"
+    )
     result = session.execute(select_query)
     for row in result:
         print("\n" + "*"*60 + "\n")
@@ -76,8 +78,10 @@ def view_all_files(session):
 
 def view_metadata(session):
     file_name = input("Enter the specific file name: ")
-    select_query = "SELECT file_name, file_size, file_type, upload_date" + 
-    "FROM file_metadata_table WHERE file_name = %s"
+    select_query = (
+        "SELECT file_name, file_size, file_type, upload_date" 
+        "FROM file_metadata_table WHERE file_name = %s"
+    )
     result = session.execute(select_query, [file_name])
     for row in result:
         print("\n" + "*"*60 + "\n")
@@ -100,30 +104,40 @@ def search_files(session):
     
     if choice == "1":
         search_word = input("Enter the file name or substring: ")
-        search_query = "SELECT file_name, file_size, file_type, upload_date" +  
-        "FROM file_metadata_table WHERE file_name = %s"
+        search_query = (
+            "SELECT file_name, file_size, file_type, upload_date"  
+            "FROM file_metadata_table WHERE file_name = %s"
+        )
         result = session.execute(search_query, [search_word])
     elif choice == "2":
         size_limit = int(input("Enter the file Size limit: "))
         size_choice = input("Enter 'less' for files less than given size " +  
         "or 'greater' for files greater than given size: ")
         if size_choice == "less":
-            search_query = "SELECT file_name, file_size, file_type, upload_date" +  
-        " FROM file_metadata_table WHERE file_size < %s ALLOW FILTERING"
+            search_query = (
+                "SELECT file_name, file_size, file_type, upload_date"
+                " FROM file_metadata_table WHERE file_size < %s ALLOW FILTERING"
+            )
         elif size_choice == "greater":
-            search_query = "SELECT file_name, file_size, file_type, upload_date" +  
-        " FROM file_metadata_table WHERE file_size > %s ALLOW FILTERING"
+            search_query = (
+                "SELECT file_name, file_size, file_type, upload_date" 
+                " FROM file_metadata_table WHERE file_size > %s ALLOW FILTERING"
+            )
         result = session.execute(search_query, [size_limit])
     elif choice == "3":
         search_word = input("Enter the file type: ")
-        search_query = "SELECT file_name, file_size, file_type, upload_date" +  
-        " FROM file_metadata_table WHERE file_type = %s"
+        search_query = (
+            "SELECT file_name, file_size, file_type, upload_date"
+            " FROM file_metadata_table WHERE file_type = %s"
+        )
         result = session.execute(search_query, [search_word])
     elif choice == "4":
         upload_date = datetime.strptime(
             input("Enter the upload date (YYYY-MM-DD): "), '%Y-%m-%d')
-        search_query = "SELECT file_name, file_size, file_type, upload_date" +  
-        " FROM file_metadata_table WHERE upload_date = %s"
+        search_query = (
+            "SELECT file_name, file_size, file_type, upload_date"
+            " FROM file_metadata_table WHERE upload_date = %s"
+        )
         result = session.execute(search_query, [upload_date])
 
     # Print search results
