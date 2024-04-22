@@ -16,7 +16,7 @@ for i in range(3):  # Inserting 3 different files
 
     # Prepare insert query
     insert_query = session.prepare(
-        "INSERT INTO file_metadata_table (" + 
+        "INSERT INTO file_metadata_table (" +
         "file_id, file_name, file_size, file_type, upload_date" +
         ") VALUES (?, ?, ?, ?, ?)"
     )
