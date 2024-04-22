@@ -3,8 +3,8 @@ import uuid
 from datetime import datetime
 
 # Connect to Cassandra
-cluster = Cluster(['localhost'])
-session = cluster.connect('file_metadata')
+cluster = Cluster(["localhost"])
+session = cluster.connect("file_metadata")
 
 # Insert data
 for i in range(3):  # Inserting 3 different files
@@ -12,19 +12,18 @@ for i in range(3):  # Inserting 3 different files
     file_id = uuid.uuid4()
 
     # Convert string date to datetime object
-    upload_date = datetime.strptime('2024-04-20', '%Y-%m-%d')
+    upload_date = datetime.strptime("2024-04-20", "%Y-%m-%d")
 
     # Prepare insert query
     insert_query = session.prepare(
-        "INSERT INTO file_metadata_table (" +
-        "file_id, file_name, file_size, file_type, upload_date" +
-        ") VALUES (?, ?, ?, ?, ?)"
+        "INSERT INTO file_metadata_table ("
+        + "file_id, file_name, file_size, file_type, upload_date"
+        + ") VALUES (?, ?, ?, ?, ?)"
     )
 
     # Execute insert query
     session.execute(
-        insert_query,
-        [file_id, f'test{i+1}', 10 * (i+1), 'pdf', upload_date]
+        insert_query, [file_id, f"test{i+1}", 10 * (i + 1), "pdf", upload_date]
     )
 
 # Query data

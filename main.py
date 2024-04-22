@@ -6,8 +6,8 @@ import uuid
 
 def connect_to_cassandra():
     # Connect to Cassandra
-    cluster = Cluster(['localhost'])
-    session = cluster.connect('file_metadata')
+    cluster = Cluster(["localhost"])
+    session = cluster.connect("file_metadata")
     return session
 
 
@@ -21,7 +21,7 @@ def create_indexes(session):
         "CREATE INDEX IF NOT EXISTS file_type_index ON "
         "file_metadata_table (file_type)",
         "CREATE INDEX IF NOT EXISTS upload_date_index ON "
-        "file_metadata_table (upload_date)"
+        "file_metadata_table (upload_date)",
     ]
     for query in create_indexes_query:
         session.execute(query, timeout=120)
@@ -32,8 +32,9 @@ def insert_file_metadata(file_path, session):
     file_name = os.path.basename(file_path)
     file_size = os.path.getsize(file_path)
     upload_date = datetime.now()
-    file_type = os.path.splitext(
-        file_name)[1][1:]  # Extract file extension as file type
+    file_type = os.path.splitext(file_name)[1][
+        1:
+    ]  # Extract file extension as file type
 
     insert_query = session.prepare(
         "INSERT INTO file_metadata_table"
@@ -62,20 +63,20 @@ def download_file():
 
 
 def view_all_files(session):
-    print("\n" + "*"*60 + "\n")
+    print("\n" + "*" * 60 + "\n")
     print("List of files:")
     select_query = (
         "SELECT file_name, file_size, file_type,"
-        "upload_date FROM file_metadata_table"
+        "upload_date FROM file_metadata_table"  # noqa E501
     )
     result = session.execute(select_query)
     for row in result:
-        print("\n" + "*"*60 + "\n")
+        print("\n" + "*" * 60 + "\n")
         print("File Name:", row.file_name)
         print("File Size:", row.file_size)
         print("File Type:", row.file_type)
         print("Upload Date:", row.upload_date)
-    print("\n" + "*"*60 + "\n")
+    print("\n" + "*" * 60 + "\n")
 
 
 def view_metadata(session):
@@ -86,12 +87,12 @@ def view_metadata(session):
     )
     result = session.execute(select_query, [file_name])
     for row in result:
-        print("\n" + "*"*60 + "\n")
+        print("\n" + "*" * 60 + "\n")
         print("File Name:", row.file_name)
         print("File Size:", row.file_size)
         print("File Type:", row.file_type)
         print("Uploaded Date:", row.upload_date)
-    print("\n" + "*"*60 + "\n")
+    print("\n" + "*" * 60 + "\n")
 
 
 # Function to search files based on user input
@@ -111,8 +112,10 @@ def search_files(session):
         result = session.execute(search_query, [search_word])
     elif choice == "2":
         size_limit = int(input("Enter the file Size limit: "))
-        size_choice = input("Enter 'less' for files less than given size " +
-                            "or 'greater' for files greater than given size: ")
+        size_choice = input(
+            "Enter 'less' for files less than given size "
+            + "or 'greater' for files greater than given size: "
+        )
         if size_choice == "less":
             search_query = (
                 "SELECT file_name, file_size, file_type, upload_date"
@@ -135,7 +138,8 @@ def search_files(session):
         result = session.execute(search_query, [search_word])
     elif choice == "4":
         upload_date = datetime.strptime(
-            input("Enter the upload date (YYYY-MM-DD): "), '%Y-%m-%d')
+            input("Enter the upload date (YYYY-MM-DD): "), "%Y-%m-%d"
+        )
         search_query = (
             "SELECT file_name, file_size, file_type, upload_date"
             " FROM file_metadata_table WHERE upload_date = %s"
@@ -144,18 +148,18 @@ def search_files(session):
 
     # Print search results
     found_files = list(result)
-    print("\n" + "*"*60 + "\n")
+    print("\n" + "*" * 60 + "\n")
     if found_files:
         print("Search Results:")
         for row in found_files:
-            print("\n" + "*"*60 + "\n")
+            print("\n" + "*" * 60 + "\n")
             print("File Name:", row.file_name)
             print("File Size:", row.file_size)
             print("File Type:", row.file_type)
             print("Upload Date:", row.upload_date)
     else:
         print("No files available in this category.")
-    print("\n" + "*"*60 + "\n")
+    print("\n" + "*" * 60 + "\n")
 
 
 def main():
