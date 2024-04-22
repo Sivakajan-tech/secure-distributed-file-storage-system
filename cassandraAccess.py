@@ -26,8 +26,7 @@ for i in range(3):  # Inserting 3 different files
     )
 
 # Query data
-select_query = "SELECT file_id, file_name, file_size, file_type," + 
-"upload_date FROM file_metadata_table"
+select_query = "SELECT file_id, file_name, file_size, file_type, upload_date FROM file_metadata_table"
 result = session.execute(select_query)
 for row in result:
     file_id = row.file_id
