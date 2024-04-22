@@ -62,8 +62,8 @@ def download_file():
 def view_all_files(session):
     print("\n" + "*"*60 + "\n")
     print("List of files:")
-    select_query = 
-    "SELECT file_name, file_size, file_type, upload_date FROM file_metadata_table"
+    select_query = "SELECT file_name, file_size, file_type," 
+    + "upload_date FROM file_metadata_table"
     result = session.execute(select_query)
     for row in result:
         print("\n" + "*"*60 + "\n")
