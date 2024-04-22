@@ -22,7 +22,7 @@ def create_indexes(session):
         "file_metadata_table (file_type)",
         "CREATE INDEX IF NOT EXISTS upload_date_index ON "
         "file_metadata_table (upload_date)"
-]
+    ]
     for query in create_indexes_query:
         session.execute(query, timeout=120)
 
@@ -101,9 +101,7 @@ def search_files(session):
     print("2. Search by file size")
     print("3. Search by file type")
     print("4. Search by uploaded date")
-    
     choice = input("Enter your choice (1-4): ")
-    
     if choice == "1":
         search_word = input("Enter the file name or substring: ")
         search_query = (
