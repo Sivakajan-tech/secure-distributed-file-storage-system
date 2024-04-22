@@ -76,8 +76,7 @@ def view_all_files(session):
 
 def view_metadata(session):
     file_name = input("Enter the specific file name: ")
-    select_query = 
-    "SELECT file_name, file_size, file_type, upload_date" + 
+    select_query = "SELECT file_name, file_size, file_type, upload_date" + 
     "FROM file_metadata_table WHERE file_name = %s"
     result = session.execute(select_query, [file_name])
     for row in result:
@@ -101,8 +100,7 @@ def search_files(session):
     
     if choice == "1":
         search_word = input("Enter the file name or substring: ")
-        search_query = 
-        "SELECT file_name, file_size, file_type, upload_date" +  
+        search_query = "SELECT file_name, file_size, file_type, upload_date" +  
         "FROM file_metadata_table WHERE file_name = %s"
         result = session.execute(search_query, [search_word])
     elif choice == "2":
