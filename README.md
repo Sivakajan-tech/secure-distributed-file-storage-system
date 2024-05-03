@@ -60,10 +60,15 @@ Once the system is running, you can interact with it through the provided user i
 - The file segmentation process divides files into equal-sized chunks (C) regardless of the file type or size.
 - Security measures such as authentication and access control are assumed to be handled separately outside the scope of this project.
 
+## Contribute
+
+### Lint Checker
+This repository enforces consistent code formatting and style using the `black` and `flake8` tools. To ensure your pull requests meet these standards, all formatting and style checks must pass before merging.
 
 
 ## Contributors
 
-- Shanmugavadivel Gopinath (@)
-- Sivaparan Sivakajan (@Sivakajan-tech)
-- Tharsha Sivapalarajah (@Tharsha-Sivapalarajah)
+
+- [Shanmugavadivel Gopinath](https://github.com/shangopi) <br>
+- [Tharsha Sivapalarajah](https://github.com/Tharsha-Sivapalarajah) <br>
+- [Sivakajan Sivaparan](https://github.com/sivakajan-tech) <br>
