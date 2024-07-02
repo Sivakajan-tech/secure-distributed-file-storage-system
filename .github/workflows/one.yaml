@@ -1,0 +1,33 @@
+name: Trigger on Pull Request Comment
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  check-comment:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if comment is on a pull request
+        id: check_pr
+        run: |
+          if [[ -n "${{ github.event.issue.pull_request }}" ]]; then
+            echo "IS_PR=true" >> $GITHUB_ENV
+          else
+            echo "IS_PR=false" >> $GITHUB_ENV
+          fi
+
+      - name: Check for specific comment on pull request
+        if: env.IS_PR == 'true'
+        id: check_comment
+        run: |
+          if [[ "${{ github.event.comment.body }}" == 'hello' ]]; then
+            echo "TRIGGERED=true" >> $GITHUB_ENV
+          else
+            echo "TRIGGERED=false" >> $GITHUB_ENV
+          fi
+
+      - name: Continue if triggered
+        if: env.TRIGGERED == 'true'
+        run: echo "The workflow is triggered by a comment containing YOUR_TRIGGER_WORD on a pull request"
