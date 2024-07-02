@@ -1,6 +1,5 @@
 name: Trigger on Pull Request Comment
 
-
 on:
   issue_comment:
     types: [created]
@@ -10,11 +9,18 @@ on:
   pull_request:
     branches:
       - master
+
 jobs:
   check-comment:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Debug event payload
+        run: echo "${{ toJson(github.event) }}"
+
       - name: Check if comment is on a pull request
         id: check_pr
         run: |
@@ -23,6 +29,9 @@ jobs:
           else
             echo "IS_PR=false" >> $GITHUB_ENV
           fi
+
+      - name: Output IS_PR
+        run: echo "IS_PR is ${{ env.IS_PR }}"
 
       - name: Check for specific comment on pull request
         if: env.IS_PR == 'true'
@@ -34,6 +43,9 @@ jobs:
             echo "TRIGGERED=false" >> $GITHUB_ENV
           fi
 
+      - name: Output TRIGGERED
+        run: echo "TRIGGERED is ${{ env.TRIGGERED }}"
+
       - name: Continue if triggered
         if: env.TRIGGERED == 'true'
-        run: echo "The workflow is triggered by a comment containing YOUR_TRIGGER_WORD on a pull request"
+        run: echo "The workflow is triggered by a comment containing 'hello' on a pull request"
