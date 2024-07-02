@@ -1,8 +1,15 @@
 name: Trigger on Pull Request Comment
 
+
 on:
   issue_comment:
     types: [created]
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   check-comment:
