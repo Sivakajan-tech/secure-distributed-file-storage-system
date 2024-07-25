@@ -1,4 +1,6 @@
 import hashlib
+
+
 class MerkleTree:
     def __init__(self, file_path, chunk_size=1024):
         self.file_path = file_path
@@ -42,6 +44,7 @@ class MerkleTree:
 
     def root_hash(self):
         return self.tree[0]
+
 
 # Example usage
 if __name__ == "__main__":
