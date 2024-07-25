@@ -129,7 +129,8 @@ def insert_file_metadata(file_path, session):
         "VALUES (?, ?, ?, ?, ?, ?, ?)"
     )
     session.execute(insert_stored_details_query,
-        [file_id, *node_ids[:3], *node_ids[3:6]])
+        [file_id, *node_ids[:3], *node_ids[3:6]]
+    )
 
 
 # Function to upload file and insert metadata into Cassandra
@@ -231,8 +232,10 @@ def search_files(session):
             """
             next_day = upload_date + timedelta(days=1)
             next_day_str_cassandra = next_day.strftime("%Y-%m-%d")
-            result = session.execute(search_query,
-                [upload_date_str_cassandra, next_day_str_cassandra])
+            result = session.execute(
+                search_query,
+                [upload_date_str_cassandra, next_day_str_cassandra]
+            )
         except ValueError:
             print("Invalid date format. Please enter in YYYY-MM-DD format.")
             return
