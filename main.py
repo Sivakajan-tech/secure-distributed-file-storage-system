@@ -59,7 +59,7 @@ def connect_to_cassandra():
 # Function to create indexes on Cassandra table
 def create_indexes(session):
     create_indexes_query = [
-         "CREATE INDEX IF NOT EXISTS file_name_index ON "
+        "CREATE INDEX IF NOT EXISTS file_name_index ON "
         "file_metadata_table (file_name)",
         "CREATE INDEX IF NOT EXISTS file_size_index ON "
         "file_metadata_table (file_size)",
@@ -79,7 +79,7 @@ def get_load_factor_details(session):
     load_factors = sorted(result, key=lambda x: x.load_factor)
     node_values = [row.node for row in load_factors[:3]]
     redundant_node_values = [row.node for row in load_factors[3:6]]
-    return node_values, redundant_node_values 
+    return node_values, redundant_node_values
 
 
 # Function to insert file metadata and stored details into Cassandra tables
@@ -199,8 +199,8 @@ def search_files(session):
         """
         result = session.execute(search_query, [search_word])
     elif choice == "4":
-        upload_date = datetime.strptime(input("Enter the "
-        "upload date (YYYY-MM-DD): "), "%Y-%m-%d")
+        upload_date = datetime.strptime(input(
+            "Enter the upload date (YYYY-MM-DD): "), "%Y-%m-%d")
         search_query = """
         SELECT file_name, file_size, file_type, upload_date
         FROM file_metadata_table WHERE upload_date = %s
