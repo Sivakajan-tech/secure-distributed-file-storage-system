@@ -3,6 +3,8 @@ from cassandra.cluster import Cluster
 from datetime import datetime
 import uuid
 
+from src.Cluster.client import upload_files, download_files
+
 
 def connect_to_cassandra():
     # Connect to Cassandra
@@ -51,14 +53,19 @@ def insert_file_metadata(file_path, session):
 def upload_file(session):
     file_path = input("Enter the path of the file to upload: ")
     if os.path.exists(file_path):
-        insert_file_metadata(file_path, session)
+        # insert_file_metadata(file_path, session)
+        load_details = [20, 30, 22, 31, 21, 31, 18]
+        upload_files(file_path, load_details)
         print(f"File '{file_path}' uploaded successfully!")
     else:
         print("File not found. Please enter a valid file path.")
 
 
 def download_file():
-    file_name = input("Enter the file name: ")
+    folder_name = "A2QSCJMv"
+    file_name = "gopi.txt"
+    nodes = [0, 2, 5]
+    download_files(folder_name, file_name, nodes)
     print(f"File '{file_name}' downloaded successfully!")
 
 
@@ -163,8 +170,9 @@ def search_files(session):
 
 
 def main():
-    session = connect_to_cassandra()
-    create_indexes(session)  # Create indexes before performing search
+    session = 5
+    # session = connect_to_cassandra()
+    # create_indexes(session)  # Create indexes before performing search
     while True:
         print("Options:")
         print("1. Upload a file")
