@@ -11,7 +11,7 @@ def connect_to_cassandra():
 
     # Create keyspace if not exists
     create_keyspace_query = """
-    CREATE KEYSPACE IF NOT EXISTS test2 WITH 
+    CREATE KEYSPACE IF NOT EXISTS test2 WITH
     replication = {'class': 'SimpleStrategy', 'replication_factor': 3}
     """
     session.execute(create_keyspace_query)
@@ -59,10 +59,14 @@ def connect_to_cassandra():
 # Function to create indexes on Cassandra table
 def create_indexes(session):
     create_indexes_query = [
-        "CREATE INDEX IF NOT EXISTS file_name_index ON file_metadata_table (file_name)",
-        "CREATE INDEX IF NOT EXISTS file_size_index ON file_metadata_table (file_size)",
-        "CREATE INDEX IF NOT EXISTS file_type_index ON file_metadata_table (file_type)",
-        "CREATE INDEX IF NOT EXISTS upload_date_index ON file_metadata_table (upload_date)",
+         "CREATE INDEX IF NOT EXISTS file_name_index ON "
+        "file_metadata_table (file_name)",
+        "CREATE INDEX IF NOT EXISTS file_size_index ON "
+        "file_metadata_table (file_size)",
+        "CREATE INDEX IF NOT EXISTS file_type_index ON "
+        "file_metadata_table (file_type)",
+        "CREATE INDEX IF NOT EXISTS upload_date_index ON "
+        "file_metadata_table (upload_date)",
     ]
     for query in create_indexes_query:
         session.execute(query, timeout=120)
@@ -73,7 +77,9 @@ def get_load_factor_details(session):
     select_query = "SELECT node, load_factor FROM node_load_factor"
     result = session.execute(select_query)
     load_factors = sorted(result, key=lambda x: x.load_factor)
-    return [row.node for row in load_factors[:3]], [row.node for row in load_factors[3:6]]
+    node_values = [row.node for row in load_factors[:3]]
+    redundant_node_values = [row.node for row in load_factors[3:6]]
+    return node_values, redundant_node_values 
 
 
 # Function to insert file metadata and stored details into Cassandra tables
@@ -81,12 +87,14 @@ def insert_file_metadata(file_path, session):
     file_name = os.path.basename(file_path)
     file_size = os.path.getsize(file_path)
     upload_date = datetime.now()
-    file_type = os.path.splitext(file_name)[1][1:]  # Extract file extension as file type
+    file_type = os.path.splitext(file_name)[1][1:]
 
     file_id = uuid.uuid4()
 
     insert_metadata_query = session.prepare(
-        "INSERT INTO file_metadata_table (file_id, file_name, file_size, file_type, upload_date) VALUES (?, ?, ?, ?, ?)"
+        "INSERT INTO file_metadata_table"
+        "(file_id, file_name, file_size, file_type, upload_date)"
+        "VALUES (?, ?, ?, ?, ?)"
     )
     session.execute(insert_metadata_query, [
         file_id, file_name, file_size, file_type, upload_date
@@ -96,7 +104,10 @@ def insert_file_metadata(file_path, session):
     primary_nodes, redundant_nodes = get_load_factor_details(session)
 
     insert_stored_details_query = session.prepare(
-        "INSERT INTO file_stored_details (file_id, node_0, node_1, node_2, redundant_node_0, redundant_node_1, redundant_node_2) VALUES (?, ?, ?, ?, ?, ?, ?)"
+        "INSERT INTO file_stored_details"
+        "(file_id, node_0, node_1, node_2, redundant_node_0,"
+        "redundant_node_1, redundant_node_2)"
+        "VALUES (?, ?, ?, ?, ?, ?, ?)"
     )
     session.execute(insert_stored_details_query, [
         file_id, *primary_nodes, *redundant_nodes
@@ -121,7 +132,8 @@ def download_file():
 def view_all_files(session):
     print("\n" + "*" * 60 + "\n")
     print("List of files:")
-    select_query = "SELECT file_name, file_size, file_type, upload_date FROM file_metadata_table"
+    select_query = "SELECT file_name, file_size, file_type,"
+    " upload_date FROM file_metadata_table"
     result = session.execute(select_query)
     for row in result:
         print("\n" + "*" * 60 + "\n")
@@ -135,7 +147,7 @@ def view_all_files(session):
 def view_metadata(session):
     file_name = input("Enter the specific file name: ")
     select_query = """
-    SELECT file_name, file_size, file_type, upload_date 
+    SELECT file_name, file_size, file_type, upload_date
     FROM file_metadata_table WHERE file_name = %s
     """
     result = session.execute(select_query, [file_name])
@@ -159,36 +171,38 @@ def search_files(session):
     if choice == "1":
         search_word = input("Enter the file name or substring: ")
         search_query = """
-        SELECT file_name, file_size, file_type, upload_date 
+        SELECT file_name, file_size, file_type, upload_date
         FROM file_metadata_table WHERE file_name = %s
         """
         result = session.execute(search_query, [search_word])
     elif choice == "2":
         size_limit = int(input("Enter the file Size limit: "))
         size_choice = input(
-            "Enter 'less' for files less than given size or 'greater' for files greater than given size: ")
+            "Enter 'less' for files less than given size or"
+            " 'greater' for files greater than given size: ")
         if size_choice == "less":
             search_query = """
-            SELECT file_name, file_size, file_type, upload_date 
+            SELECT file_name, file_size, file_type, upload_date
             FROM file_metadata_table WHERE file_size < %s ALLOW FILTERING
             """
         elif size_choice == "greater":
             search_query = """
-            SELECT file_name, file_size, file_type, upload_date 
+            SELECT file_name, file_size, file_type, upload_date
             FROM file_metadata_table WHERE file_size > %s ALLOW FILTERING
             """
         result = session.execute(search_query, [size_limit])
     elif choice == "3":
         search_word = input("Enter the file type: ")
         search_query = """
-        SELECT file_name, file_size, file_type, upload_date 
+        SELECT file_name, file_size, file_type, upload_date
         FROM file_metadata_table WHERE file_type = %s
         """
         result = session.execute(search_query, [search_word])
     elif choice == "4":
-        upload_date = datetime.strptime(input("Enter the upload date (YYYY-MM-DD): "), "%Y-%m-%d")
+        upload_date = datetime.strptime(input("Enter the "
+        "upload date (YYYY-MM-DD): "), "%Y-%m-%d")
         search_query = """
-        SELECT file_name, file_size, file_type, upload_date 
+        SELECT file_name, file_size, file_type, upload_date
         FROM file_metadata_table WHERE upload_date = %s
         """
         result = session.execute(search_query, [upload_date])
