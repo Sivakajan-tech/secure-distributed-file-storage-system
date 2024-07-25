@@ -1,0 +1,5 @@
+To create the Docker Container.
+Go to the repo where Dockerfile is located and execute `docker build -t my-server-app .`
+
+To run the application on the container
+`docker run -it -p 65432:65432 my-server-app`
