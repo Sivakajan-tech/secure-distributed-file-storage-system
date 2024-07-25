@@ -1,10 +1,8 @@
+import random
 import socket
 import string
-import random
-from typing import List
 
 from src.MakeChunks.fileBreak import make_chunks
-from src.MakeChunks.fileMake import combine_chunks
 
 
 def generate_random_folder_name(length=8):
