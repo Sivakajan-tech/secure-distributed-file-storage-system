@@ -1,8 +1,11 @@
+import os
 import random
 import socket
 import string
+import traceback
 
 from src.MakeChunks.fileBreak import make_chunks
+from src.MakeChunks.fileMake import combine_chunks
 
 
 def generate_random_folder_name(length=8):
@@ -10,9 +13,9 @@ def generate_random_folder_name(length=8):
                                   string.digits, k=length))
 
 
-def get_ip_port(file_name):
+def get_ip_port():
     ip_list = []
-    with open(file_name, "r") as file:
+    with open("client_map.txt", "r") as file:
         # Read lines one by one
         for line in file:
             # Split the line into IP address and port number
@@ -27,7 +30,11 @@ def send_chunks_to_ip(chunk, chunk_id, folder_name, ip, port):
         with (socket.socket(socket.AF_INET, socket.SOCK_STREAM)
               as client_socket):
             client_socket.connect((ip, int(port)))
-
+            # Send command name length and command name
+            command_name_encoded = "put".encode("utf-8")
+            client_socket.sendall(len(command_name_encoded)
+                                  .to_bytes(4, byteorder="big"))
+            client_socket.sendall(command_name_encoded)
             # Send chunk name length and chunk name
             chunk_name_encoded = chunk_name.encode("utf-8")
             client_socket.sendall(len(chunk_name_encoded)
@@ -44,12 +51,12 @@ def send_chunks_to_ip(chunk, chunk_id, folder_name, ip, port):
 
 
 def send_chunks(
-        folder_name, num_chunks, ip_list,
+        folder_name, ip_list,
         chunk_allocation_plan, primary_nodes, backup_nodes
 ):
     for i in range(len(chunk_allocation_plan)):
         for j in chunk_allocation_plan[i]:
-            chunk_file_path = (f"../../client_files/"
+            chunk_file_path = (f"./client_files/"
                                f"{folder_name}/chunk{j}.chunk")
             with open(chunk_file_path, "rb") as chunk_file:
                 chunk = chunk_file.read()
@@ -120,37 +127,80 @@ def create_chunk_allocation_plan(num_chunks):
     return [list1, list2, list3]
 
 
-if __name__ == "__main__":
-    ip_list = get_ip_port("client_map.txt")
-    print(ip_list)
-    load_details = [20, 30, 22, 31, 21, 31, 18]
+def upload_files(file_path, load_details):
+    ip_list = get_ip_port()
     CHUNK_SIZE = 1024  # Size of each chunk in bytes
     folder_name = generate_random_folder_name()
     primary_nodes, backup_nodes = choose_nodes(load_details)
-    print(primary_nodes, backup_nodes)
-
-    # Prompt the client for the file path
-    file_path = input("Enter the file path: ")
-    file_name = file_path.split("/")[-1]
-    ip, port = ip_list[0]
-    print(ip, port)
 
     # Step 1: Create chunks and save them in the local
     num_chunks = make_chunks(file_path, CHUNK_SIZE, folder_name)
 
     chunk_allocation_plan = create_chunk_allocation_plan(num_chunks)
-    print(chunk_allocation_plan)
 
     # Step 2: Send the chunks to different IPs
     send_chunks(
         folder_name,
-        num_chunks,
         ip_list,
         chunk_allocation_plan,
         primary_nodes,
         backup_nodes,
     )
 
-    # Step 3: Combine chunks back into a single file
-    OUTPUT_FILE = "/home/gopi/Desktop/secure-distributed-file-storage-system/summa.txt"  # noqa E501
-    # combine_chunks(folder_name, OUTPUT_FILE)
+
+def download_files(folder_name, file_name, nodes):
+    try:
+
+        ip_list = get_ip_port()
+
+        for i in nodes:
+            with (socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                  as client_socket):
+                ip, port = ip_list[i][0], ip_list[i][1]
+
+                client_socket.connect((ip, int(port)))
+                # Send command name length and command name
+                command_name_encoded = "get".encode("utf-8")
+                client_socket.sendall(len(command_name_encoded)
+                                      .to_bytes(4, byteorder="big"))
+                client_socket.sendall(command_name_encoded)
+                # Send chunk name length and chunk name
+                folder_name_encoded = folder_name.encode("utf-8")
+                client_socket.sendall(len(folder_name_encoded)
+                                      .to_bytes(4, byteorder="big"))
+                client_socket.sendall(folder_name_encoded)
+
+                while True:
+                    # Receive the length of the chunk name
+                    chunk_name_len = (int.from_bytes
+                                      (client_socket.recv(4), byteorder="big"))
+                    if not chunk_name_len:
+                        client_socket.close()
+                        break
+
+                    # Receive the chunk name based on the received length
+                    chunk_name = client_socket.recv(chunk_name_len).decode("utf-8")
+                    if chunk_name == "exit":
+                        client_socket.close()
+                        break
+
+                    if chunk_name:
+                        file_loc = f"./downloaded_files/{folder_name}/{chunk_name}"
+                        os.makedirs(os.path.dirname(file_loc), exist_ok=True)
+                        # Receive the file data and save it
+                        with open(file_loc, "wb") as file:
+                            chunk = client_socket.recv(1024)
+                            if not chunk: print("fsf")
+                            file.write(chunk)
+
+            if client_socket: client_socket.close()
+        combine_chunks(f"./downloaded_files/{folder_name}", "./downloaded.txt")
+        print(f"Retrieved chunks for {file_name} from {ip}:{port}")
+
+
+
+    except Exception as e:
+        print(f"Error receiving chunk to {ip}:{port}: {e} {traceback.format_exc()}")
+
+    finally:
+        if client_socket: client_socket.close()
