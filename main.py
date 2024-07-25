@@ -89,12 +89,12 @@ def create_indexes(session):
 # Function to get load factor details from node_load_factor table
 def get_load_factor_details(session):
     # Select only nodes with health status as true
-    query = """SELECT node, load_factor FROM 
+    query = """SELECT node, load_factor FROM
     node_load_factor WHERE health = true ALLOW FILTERING"""
     result = session.execute(query)
-    
+
     # Prepare (node, load_factor) pair values
-    node_values = [(row.node, row.load_factor) for row in result] 
+    node_values = [(row.node, row.load_factor) for row in result]
     return node_values
 
 
@@ -121,7 +121,6 @@ def insert_file_metadata(file_path, session):
 
     # Extract node ids and load factors
     node_ids = [node[0] for node in node_values]
-    load_factors = [node[1] for node in node_values]
 
     insert_stored_details_query = session.prepare(
         "INSERT INTO file_stored_details"
@@ -129,8 +128,8 @@ def insert_file_metadata(file_path, session):
         "redundant_node_1, redundant_node_2)"
         "VALUES (?, ?, ?, ?, ?, ?, ?)"
     )
-    session.execute(insert_stored_details_query, 
-    [file_id, *node_ids[:3], *node_ids[3:6]])
+    session.execute(insert_stored_details_query,
+        [file_id, *node_ids[:3], *node_ids[3:6]])
 
 
 # Function to upload file and insert metadata into Cassandra
@@ -187,19 +186,19 @@ def search_files(session):
     print("3. Search by file type")
     print("4. Search by uploaded date")
     choice = input("Enter your choice (1-4): ")
-    
+
     if choice == "1":
         search_word = input("Enter the file name or substring: ")
-        search_query = """SELECT file_name, file_size, file_type, 
-                        upload_date 
-                        FROM file_metadata_table 
+        search_query = """SELECT file_name, file_size, file_type,
+                        upload_date
+                        FROM file_metadata_table
                         WHERE file_name = %s"""
         result = session.execute(search_query, [search_word])
-    
+
     elif choice == "2":
         size_limit = int(input("Enter the file size limit: "))
         size_choice = input("Enter 'less' for files less than given"
-        " size or 'greater' for files greater than given size: ")
+            " size or 'greater' for files greater than given size: ")
         if size_choice == "less":
             search_query = """SELECT file_name, file_size, file_type,
             upload_date FROM file_metadata_table
@@ -209,14 +208,14 @@ def search_files(session):
             upload_date FROM file_metadata_table
             WHERE file_size > %s ALLOW FILTERING"""
         result = session.execute(search_query, [size_limit])
-    
+
     elif choice == "3":
         file_type = input("Enter the file type (e.g., png, jpg): ")
         search_query = """SELECT file_name, file_size, file_type,
         upload_date FROM file_metadata_table
         WHERE file_type = %s ALLOW FILTERING"""
         result = session.execute(search_query, [file_type])
-    
+
     elif choice == "4":
         upload_date_str = input("Enter the upload date (YYYY-MM-DD): ")
         try:
@@ -232,12 +231,12 @@ def search_files(session):
             """
             next_day = upload_date + timedelta(days=1)
             next_day_str_cassandra = next_day.strftime("%Y-%m-%d")
-            result = session.execute(search_query, 
-            [upload_date_str_cassandra, next_day_str_cassandra])
+            result = session.execute(search_query,
+                [upload_date_str_cassandra, next_day_str_cassandra])
         except ValueError:
             print("Invalid date format. Please enter in YYYY-MM-DD format.")
             return
-    
+
     else:
         print("Invalid choice. Please enter a number between 1 and 4.")
         return
