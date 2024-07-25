@@ -6,9 +6,8 @@ from src.MakeChunks.fileBreak import make_chunks
 
 
 def generate_random_folder_name(length=8):
-    return "".join(
-        random.choices(string.ascii_letters + string.digits, k=length)
-    )
+    return "".join(random.choices(string.ascii_letters +
+                                  string.digits, k=length))
 
 
 def get_ip_port(file_name):
@@ -25,16 +24,14 @@ def get_ip_port(file_name):
 def send_chunks_to_ip(chunk, chunk_id, folder_name, ip, port):
     chunk_name = f"{folder_name}/Chunk_{chunk_id}"
     try:
-        with socket.socket(
-                socket.AF_INET, socket.SOCK_STREAM
-        ) as client_socket:
+        with (socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+              as client_socket):
             client_socket.connect((ip, int(port)))
 
             # Send chunk name length and chunk name
             chunk_name_encoded = chunk_name.encode("utf-8")
-            client_socket.sendall(
-                len(chunk_name_encoded).to_bytes(4, byteorder="big")
-            )
+            client_socket.sendall(len(chunk_name_encoded)
+                                  .to_bytes(4, byteorder="big"))
             client_socket.sendall(chunk_name_encoded)
 
             client_socket.sendall(chunk)  # Send chunk data
@@ -46,24 +43,46 @@ def send_chunks_to_ip(chunk, chunk_id, folder_name, ip, port):
         print(f"Error sending chunk to {ip}:{port}: {e}")
 
 
-def send_chunks(folder_name, num_chunks, ip_list, chunk_allocation_plan, primary_nodes, backup_nodes):
+def send_chunks(
+        folder_name, num_chunks, ip_list,
+        chunk_allocation_plan, primary_nodes, backup_nodes
+):
     for i in range(len(chunk_allocation_plan)):
         for j in chunk_allocation_plan[i]:
-            chunk_file_path = f"../../client_files/{folder_name}/chunk{j}.chunk"
+            chunk_file_path = (f"../../client_files/"
+                               f"{folder_name}/chunk{j}.chunk")
             with open(chunk_file_path, "rb") as chunk_file:
                 chunk = chunk_file.read()
                 print(
-                    f"Sending Chunk {j} to primary node {primary_nodes[i]} with IP {ip_list[primary_nodes[i]][0]} port {ip_list[primary_nodes[i]][1]}")
-                send_chunks_to_ip(chunk, j, folder_name, ip_list[primary_nodes[i]][0], ip_list[primary_nodes[i]][1])
+                    f"Sending Chunk {j} to primary node {primary_nodes[i]} "
+                    f"with IP {ip_list[primary_nodes[i]][0]} "
+                    f"port {ip_list[primary_nodes[i]][1]}"
+                )
+                send_chunks_to_ip(
+                    chunk,
+                    j,
+                    folder_name,
+                    ip_list[primary_nodes[i]][0],
+                    ip_list[primary_nodes[i]][1],
+                )
                 print(
-                    f"Sending Chunk {j} to secondary node {backup_nodes[i]} with IP {ip_list[backup_nodes[i]][0]} port {ip_list[backup_nodes[i]][1]}")
-                send_chunks_to_ip(chunk, j, folder_name, ip_list[backup_nodes[i]][0], ip_list[backup_nodes[i]][1])
+                    f"Sending Chunk {j} to secondary node {backup_nodes[i]} "
+                    f"with IP {ip_list[backup_nodes[i]][0]} "
+                    f"port {ip_list[backup_nodes[i]][1]}"
+                )
+                send_chunks_to_ip(
+                    chunk,
+                    j,
+                    folder_name,
+                    ip_list[backup_nodes[i]][0],
+                    ip_list[backup_nodes[i]][1],
+                )
 
 
 def choose_nodes(load_details):
     min_load = min(load_details)
     max_load = max(load_details)
-    min_max_val = (max_load - min_load)
+    min_max_val = max_load - min_load
     selection_dict = {}
     for i in range(len(load_details)):
         # scaling the load factor
@@ -123,7 +142,14 @@ if __name__ == "__main__":
     print(chunk_allocation_plan)
 
     # Step 2: Send the chunks to different IPs
-    send_chunks(folder_name, num_chunks, ip_list, chunk_allocation_plan, primary_nodes, backup_nodes)
+    send_chunks(
+        folder_name,
+        num_chunks,
+        ip_list,
+        chunk_allocation_plan,
+        primary_nodes,
+        backup_nodes,
+    )
 
     # Step 3: Combine chunks back into a single file
     OUTPUT_FILE = "/home/gopi/Desktop/secure-distributed-file-storage-system/summa.txt"  # noqa E501

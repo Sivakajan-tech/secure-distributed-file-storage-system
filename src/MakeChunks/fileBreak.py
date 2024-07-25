@@ -11,7 +11,8 @@ def make_chunks(file_path, chunk_size, folder_name):
         # Read and write the file in chunks
         for i in range(num_chunks):
             data = file.read(chunk_size)
-            chunk_file_path = f"../../client_files/{folder_name}/chunk{i + 1}.chunk"
+            chunk_file_path = (f"../../client_files/"
+                               f"{folder_name}/chunk{i + 1}.chunk")
             with open(chunk_file_path, "wb") as chunk_file:
                 chunk_file.write(data)
 
