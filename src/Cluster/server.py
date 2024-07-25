@@ -1,6 +1,10 @@
 import os
 import socket
 
+from src.Cluster.client import get_ip_port
+
+curr_node = 7
+
 
 def start_server(server_address):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -18,15 +22,15 @@ def start_server(server_address):
 
         try:
             # Receive the length of the chunk name
-            chunk_name_len = int.from_bytes(
-                client_socket.recv(4), byteorder="big"
-            )
+            chunk_name_len = (int.from_bytes
+                              (client_socket.recv(4), byteorder="big"))
 
             # Receive the chunk name based on the received length
             chunk_name = client_socket.recv(chunk_name_len).decode("utf-8")
 
             if chunk_name:
-                file_loc = f"./collection/{chunk_name}"
+                file_loc = (f"../../server_files/server-"
+                            f"{curr_node}_files/{chunk_name}")
                 print(file_loc)
                 os.makedirs(os.path.dirname(file_loc), exist_ok=True)
 
@@ -50,7 +54,8 @@ def start_server(server_address):
 
 
 if __name__ == "__main__":
+    ip_list = get_ip_port("client_map.txt")
     # Define the server address and port
-    server_address = ("0.0.0.0", 65432)
+    server_address = (ip_list[curr_node][0], int(ip_list[curr_node][1]))
 
     start_server(server_address)
