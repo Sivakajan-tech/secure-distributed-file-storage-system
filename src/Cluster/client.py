@@ -9,8 +9,8 @@ from src.MakeChunks.fileMake import combine_chunks
 
 
 def generate_random_folder_name(length=8):
-    return "".join(random.choices(string.ascii_letters +
-                                  string.digits, k=length))
+    return "".join(random.choices
+                   (string.ascii_letters + string.digits, k=length))
 
 
 def get_ip_port():
@@ -32,8 +32,9 @@ def send_chunks_to_ip(chunk, chunk_id, folder_name, ip, port):
             client_socket.connect((ip, int(port)))
             # Send command name length and command name
             command_name_encoded = "put".encode("utf-8")
-            client_socket.sendall(len(command_name_encoded)
-                                  .to_bytes(4, byteorder="big"))
+            client_socket.sendall(
+                len(command_name_encoded).to_bytes(4, byteorder="big")
+            )
             client_socket.sendall(command_name_encoded)
             # Send chunk name length and chunk name
             chunk_name_encoded = chunk_name.encode("utf-8")
@@ -51,13 +52,12 @@ def send_chunks_to_ip(chunk, chunk_id, folder_name, ip, port):
 
 
 def send_chunks(
-        folder_name, ip_list,
-        chunk_allocation_plan, primary_nodes, backup_nodes
+    folder_name, ip_list, chunk_allocation_plan, primary_nodes, backup_nodes
 ):
     for i in range(len(chunk_allocation_plan)):
         for j in chunk_allocation_plan[i]:
-            chunk_file_path = (f"./client_files/"
-                               f"{folder_name}/chunk{j}.chunk")
+            chunk_file_path = f"./client_files/"\
+                              f"{folder_name}/chunk{j}.chunk"
             with open(chunk_file_path, "rb") as chunk_file:
                 chunk = chunk_file.read()
                 print(
@@ -161,19 +161,22 @@ def download_files(folder_name, file_name, nodes):
                 client_socket.connect((ip, int(port)))
                 # Send command name length and command name
                 command_name_encoded = "get".encode("utf-8")
-                client_socket.sendall(len(command_name_encoded)
-                                      .to_bytes(4, byteorder="big"))
+                client_socket.sendall(
+                    len(command_name_encoded).to_bytes(4, byteorder="big")
+                )
                 client_socket.sendall(command_name_encoded)
                 # Send chunk name length and chunk name
                 folder_name_encoded = folder_name.encode("utf-8")
-                client_socket.sendall(len(folder_name_encoded)
-                                      .to_bytes(4, byteorder="big"))
+                client_socket.sendall(
+                    len(folder_name_encoded).to_bytes(4, byteorder="big")
+                )
                 client_socket.sendall(folder_name_encoded)
 
                 while True:
                     # Receive the length of the chunk name
-                    chunk_name_len = (int.from_bytes
-                                      (client_socket.recv(4), byteorder="big"))
+                    chunk_name_len = int.from_bytes(
+                        client_socket.recv(4), byteorder="big"
+                    )
                     if not chunk_name_len:
                         client_socket.close()
                         break
@@ -185,22 +188,25 @@ def download_files(folder_name, file_name, nodes):
                         break
 
                     if chunk_name:
-                        file_loc = f"./downloaded_files/{folder_name}/{chunk_name}"
+                        file_loc = (f"./downloaded_files/{folder_name}/"
+                                    f"{chunk_name}")
                         os.makedirs(os.path.dirname(file_loc), exist_ok=True)
                         # Receive the file data and save it
                         with open(file_loc, "wb") as file:
                             chunk = client_socket.recv(1024)
-                            if not chunk: print("fsf")
+                            if not chunk:
+                                print("fsf")
                             file.write(chunk)
 
-            if client_socket: client_socket.close()
+            if client_socket:
+                client_socket.close()
         combine_chunks(f"./downloaded_files/{folder_name}", "./downloaded.txt")
         print(f"Retrieved chunks for {file_name} from {ip}:{port}")
 
-
-
     except Exception as e:
-        print(f"Error receiving chunk to {ip}:{port}: {e} {traceback.format_exc()}")
+        print(f"Error receiving chunk to "
+              f"{ip}:{port}: {e} {traceback.format_exc()}")
 
     finally:
-        if client_socket: client_socket.close()
+        if client_socket:
+            client_socket.close()

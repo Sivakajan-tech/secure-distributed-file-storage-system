@@ -1,7 +1,7 @@
 import os
 import socket
 
-curr_node = 1
+curr_node = 6
 
 
 def get_ip_port():
@@ -18,15 +18,14 @@ def get_ip_port():
 def receive_file(client_socket):
     try:
         # Receive the length of the chunk name
-        chunk_name_len = (int.from_bytes
-                          (client_socket.recv(4), byteorder="big"))
+        chunk_name_len = int.from_bytes(client_socket.recv(4), byteorder="big")
 
         # Receive the chunk name based on the received length
         chunk_name = client_socket.recv(chunk_name_len).decode("utf-8")
 
         if chunk_name:
-            file_loc = (f"../../server_files/server-"
-                        f"{curr_node}_files/{chunk_name}")
+            file_loc = f"../../server_files/server-" \
+                       f"{curr_node}_files/{chunk_name}"
             os.makedirs(os.path.dirname(file_loc), exist_ok=True)
 
             # Receive the file data and save it
@@ -51,25 +50,25 @@ def receive_file(client_socket):
 # Function to send file to client
 def send_file(client_socket, client_address):
     # Receive the length of the folder name
-    folder_name_len = (int.from_bytes
-                       (client_socket.recv(4), byteorder="big"))
+    folder_name_len = int.from_bytes(client_socket.recv(4), byteorder="big")
 
     # Receive the folder name based on the received length
     folder_name = client_socket.recv(folder_name_len).decode("utf-8")
 
     print(folder_name)
 
-    chunk_files_path = (f"../../server_files/server-"
-                        f"{curr_node}_files/{folder_name}")
+    chunk_files_path = f"../../server_files/server-" \
+                       f"{curr_node}_files/{folder_name}"
     for chunk_name in os.listdir(chunk_files_path):
-        if(chunk_name=='Chunk_65'): continue
+        if chunk_name == "Chunk_65":
+            continue
         chunk_name_encoded = chunk_name.encode("utf-8")
         client_socket.sendall(len(chunk_name_encoded)
                               .to_bytes(4, byteorder="big"))
         client_socket.sendall(chunk_name_encoded)
         full_path = os.path.join(chunk_files_path, chunk_name)
         # Open and read the file
-        with open(full_path, 'rb') as chunk_file:
+        with open(full_path, "rb") as chunk_file:
             chunk = chunk_file.read()
             client_socket.sendall(chunk)  # Send chunk data
             print(
@@ -78,11 +77,8 @@ def send_file(client_socket, client_address):
             )
 
     finish_msg_encoded = "exit".encode("utf-8")
-    client_socket.sendall(len(finish_msg_encoded)
-                              .to_bytes(4, byteorder="big"))
+    client_socket.sendall(len(finish_msg_encoded).to_bytes(4, byteorder="big"))
     client_socket.sendall(finish_msg_encoded)
-
-
 
 
 def start_server(server_address):
@@ -99,15 +95,15 @@ def start_server(server_address):
             f"Connection established from {client_address[0]}:{client_address[1]}"  # noqa E501
         )
         # Receive the length of the command name
-        command_name_len = (int.from_bytes
-                            (client_socket.recv(4), byteorder="big"))
+        command_name_len = (
+            int.from_bytes(client_socket.recv(4), byteorder="big"))
 
         # Receive the chunk name based on the received length
         command = client_socket.recv(command_name_len).decode("utf-8")
 
-        if command == 'put':
+        if command == "put":
             receive_file(client_socket)
-        elif command == 'get':
+        elif command == "get":
             send_file(client_socket, client_address)
         else:
             print("Invalid command received." + command)
