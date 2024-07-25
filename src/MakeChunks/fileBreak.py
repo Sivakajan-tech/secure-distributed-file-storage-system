@@ -16,5 +16,5 @@ def make_chunks(file_path, chunk_size, folder_name):
             with open(chunk_file_path, "wb") as chunk_file:
                 chunk_file.write(data)
 
-    print(f"{num_chunks} chunks created successfully.")
+    print(f"{num_chunks} chunks created successfudlly.")
     return num_chunks
